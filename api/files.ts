@@ -1,6 +1,4 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -9,7 +7,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).end();
   }
 
-  const token = process.env.GITHUB_TOKEN;
+  const token = (process.env as any).GITHUB_TOKEN;
   if (!token) {
     return res.status(500).json({ error: '服务端未配置 GITHUB_TOKEN 环境变量' });
   }
@@ -25,7 +23,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const apiBase = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${subPath}?ref=${branchName}`;
 
   try {
-    // GET: list files in directory
     if (req.method === 'GET') {
       const ghRes = await fetch(apiBase, {
         headers: {
@@ -36,22 +33,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       if (!ghRes.ok) {
         const errData = await ghRes.json().catch(() => ({}));
-        const msg = (errData as { message?: string }).message || `GitHub API 错误 (${ghRes.status})`;
+        const msg = (errData as any).message || `GitHub API 错误 (${ghRes.status})`;
         return res.status(ghRes.status).json({ error: msg });
       }
 
-      const contents = await ghRes.json() as Array<{
-        name: string;
-        path: string;
-        sha: string;
-        size: number;
-        type: string;
-        download_url: string;
-      }>;
-
+      const contents = await ghRes.json() as Array<any>;
       const files = contents
-        .filter((item) => item.type === 'file')
-        .map((item) => ({
+        .filter((item: any) => item.type === 'file')
+        .map((item: any) => ({
           name: item.name,
           path: item.path,
           sha: item.sha,
@@ -63,7 +52,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(200).json(files);
     }
 
-    // DELETE: remove a file
     if (req.method === 'DELETE') {
       const { filePath, sha } = req.body as { filePath: string; sha: string };
 
@@ -90,7 +78,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       if (!ghRes.ok) {
         const errData = await ghRes.json().catch(() => ({}));
-        const msg = (errData as { message?: string }).message || `删除失败 (${ghRes.status})`;
+        const msg = (errData as any).message || `删除失败 (${ghRes.status})`;
         return res.status(ghRes.status).json({ error: msg });
       }
 

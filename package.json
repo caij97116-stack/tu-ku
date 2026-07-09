@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "./node_modules/.bin/tsc --noEmit && vite build && cp -r api dist/api",
     "lint": "eslint .",
     "preview": "vite preview",
-    "check": "tsc --noEmit"
+    "check": "./node_modules/.bin/tsc --noEmit"
   },
   "dependencies": {
     "clsx": "^2.1.1",

@@ -5,8 +5,10 @@ export default async function handler(req, res) {
   }
 
   try {
+    const filePath = `uploads/test-${Date.now()}.txt`;
+
     const ghRes = await fetch(
-      'https://api.github.com/repos/caij97116-stack/tu-ku/contents/uploads/test-vercel.txt',
+      `https://api.github.com/repos/caij97116-stack/tu-ku/contents/${filePath}`,
       {
         method: 'PUT',
         headers: {

@@ -23,7 +23,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { file, fileName, fileType, owner, repo, branch, path } = req.body;
+    let body = req.body;
+
+    const { file, fileName, fileType, owner, repo, branch, path } = body || {};
 
     if (!file || !fileName || !owner || !repo) {
       return res.status(400).json({

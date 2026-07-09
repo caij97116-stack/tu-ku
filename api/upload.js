@@ -67,8 +67,9 @@ export default async function handler(req, res) {
 
     if (!ghRes.ok) {
       const errData = await ghRes.json().catch(() => ({}));
+      const ghMsg = errData.message || `GitHub API error ${ghRes.status}`;
       return res.status(ghRes.status).json({
-        error: errData.message || `GitHub API error ${ghRes.status}`,
+        error: `${ghMsg} [owner=${owner}, repo=${repo}, branch=${branchName}, path=${subPath}]`,
         debug: { owner, repo, branch: branchName, targetPath: filePath },
         received: { owner, repo, branch: branchName, path: subPath, fileName, hasFile: !!file },
       });

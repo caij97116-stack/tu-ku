@@ -1,3 +1,9 @@
+export const config = {
+  api: {
+    bodyParser: { sizeLimit: '50mb' },
+  },
+};
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -20,7 +26,18 @@ export default async function handler(req, res) {
     const { file, fileName, fileType, owner, repo, branch, path } = req.body;
 
     if (!file || !fileName || !owner || !repo) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      return res.status(400).json({
+        error: 'Missing required fields',
+        debug: {
+          hasFile: !!file,
+          hasFileName: !!fileName,
+          hasOwner: !!owner,
+          hasRepo: !!repo,
+          owner,
+          repo,
+          fileLength: file ? file.length : 0,
+        },
+      });
     }
 
     const branchName = branch || 'main';
@@ -48,7 +65,10 @@ export default async function handler(req, res) {
 
     if (!ghRes.ok) {
       const errData = await ghRes.json().catch(() => ({}));
-      return res.status(ghRes.status).json({ error: errData.message || `GitHub API error ${ghRes.status}` });
+      return res.status(ghRes.status).json({
+        error: errData.message || `GitHub API error ${ghRes.status}`,
+        debug: { owner, repo, branch: branchName, targetPath: filePath },
+      });
     }
 
     const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branchName}/${filePath}`;

@@ -70,6 +70,7 @@ export default async function handler(req, res) {
       return res.status(ghRes.status).json({
         error: errData.message || `GitHub API error ${ghRes.status}`,
         debug: { owner, repo, branch: branchName, targetPath: filePath },
+        received: { owner, repo, branch: branchName, path: subPath, fileName, hasFile: !!file },
       });
     }
 

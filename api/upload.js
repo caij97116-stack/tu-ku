@@ -25,7 +25,11 @@ export default async function handler(req, res) {
   try {
     let body = req.body;
 
-    const { file, fileName, fileType, owner, repo, branch, path } = body || {};
+    let { file, fileName, fileType, owner, repo, branch, path } = body || {};
+
+    // Normalize: fix common Unicode lookalikes (e.g., en-dash → hyphen)
+    if (owner) owner = owner.replace(/[–—―]/g, '-').replace(/[^a-zA-Z0-9-]/g, '');
+    if (repo) repo = repo.replace(/[–—―]/g, '-').replace(/[^a-zA-Z0-9._-]/g, '');
 
     if (!file || !fileName || !owner || !repo) {
       return res.status(400).json({

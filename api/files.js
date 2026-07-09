@@ -12,7 +12,11 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'GITHUB_TOKEN not configured' });
   }
 
-  const { owner, repo, branch, path } = req.query;
+  let { owner, repo, branch, path } = req.query;
+
+  // Normalize: fix common Unicode lookalikes
+  if (owner) owner = owner.replace(/[–—―]/g, '-').replace(/[^a-zA-Z0-9-]/g, '');
+  if (repo) repo = repo.replace(/[–—―]/g, '-').replace(/[^a-zA-Z0-9._-]/g, '');
 
   if (!owner || !repo) {
     return res.status(400).json({ error: 'Missing owner or repo' });
